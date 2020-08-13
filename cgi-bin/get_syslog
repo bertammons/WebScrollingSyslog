@@ -1,0 +1,11 @@
+#!/bin/sh
+
+syslog=$(cat /var/log/messages |grep -v get_syslog)
+
+cat << EOF
+Content-type: text/plain
+Access-Control-Allow-Origin: *
+
+$syslog
+
+EOF

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<style>
+	body,html {
+		margin:0;
+	}
+	pre {
+		margin-bottom: 0px;
+	}
+	.log {
+		width: 100%;
+		height: calc(100vh - 108px);
+		overflow: scroll;
+		border: 2px solid blue;
+	}
+	.btn {
+		background-color: dodgerblue;
+		color: black;
+		height: 30px;
+		line-height: 30px;
+		text-align: center;
+		border-radius: 3px;
+		width: 100px;
+		transition: 0.3s ease-in-out;
+		margin-top: 28px;
+		margin-left: 15px;
+	}
+	.btn:hover {
+		background-color: gray;
+		color: white;
+		width: 110px;
+		cursor: pointer;
+	}
+	.headerCont {
+		display: flex;
+	}
+	#mainLogCont {
+		border: 5px solid blue;
+	}
+</style>
+<script>
+var interval = null, intBool = false, scrollBool = true;
+toggleInt();
+function scrollDown() {
+	if(scrollBool) {
+		let output = document.getElementById("mainLog");
+		output.scrollTo(0,output.scrollHeight);
+	}
+}
+function fetchHtml() {
+	fetch('http://172.20.1.254/cgi-bin/get_syslog').then(function(response) {
+		return response.text();
+	}).then(function(data) {
+		document.getElementById("mainLog").innerHTML = ""+data;
+		document.getElementById("staticLog").innerHTML = ""+data;
+	});
+}
+function toggleInt() {
+	if(!intBool) {
+		intBool = true;
+		interval = setInterval(function() {fetchHtml();scrollDown();},10000);
+		document.getElementById("toggleUpdate").innerHTML = "Update On";
+		document.getElementById("toggleUpdate").style.backgroundColor = "dodgerblue";
+	}else{
+		intBool = false;
+		clearInterval(interval);
+		document.getElementById("toggleUpdate").innerHTML = "Update Off";
+		document.getElementById("toggleUpdate").style.backgroundColor = "grey";
+	}
+}
+function toggleScroll(){
+	if(scrollBool){
+		scrollBool = false;
+		document.getElementById("toggleScroll").innerHTML = "Tail Off";
+		document.getElementById("toggleScroll").style.backgroundColor = "grey";
+	}else{
+		scrollBool = true
+		document.getElementById("toggleScroll").innerHTML = "Tail On";
+		document.getElementById("toggleScroll").style.backgroundColor = "dodgerblue";
+	}
+}
+</script>
+<body onload="fetchHtml();scrollDown()">
+<div id="mainLogCont">
+	<div class="headerCont">
+		<h1>Scrolling Log</h1>
+		<div onclick="toggleInt()" class="btn" id="toggleUpdate">Update On</div>
+		<div onclick="toggleScroll()" class="btn" id="toggleScroll">Tail On</div>
+		<div onclick="fetchHtml();scrollDown()" class="btn" id="manualPoll">Manual Poll</div>
+	</div>
+	<pre id="mainLog" class="log"></pre>
+</div>
+<!-- <div id="staticLogCont">
+	<h1>Static Log</h1>
+	<pre id="staticLog" class="log"></pre>
+</div> -->
+</body>
+</html>
